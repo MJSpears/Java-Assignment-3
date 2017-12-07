@@ -1,8 +1,9 @@
 import Shefrobot.*;
 
 public class Movement {
-	private float distance = 0.0;
 	private Robot robot;
+	private Motor leftMotor;
+	private Motor rightMotor;
 
 	public void StartForward() {
 
@@ -24,11 +25,9 @@ public class Movement {
 
 	}
 
-	public float getDistance() {
-		return distance;
-	}
-
 	public void initRobot(Robot r) {
 		robot = r;
+		leftMotor = robot.getLargeMotor(Motor.Port.B);
+		rightMotor = robot.getLargeMotor(Motor.Port.C);
 	}
 }

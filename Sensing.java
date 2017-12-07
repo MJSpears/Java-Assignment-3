@@ -1,7 +1,8 @@
 import ShefRobot.*;
 
-public class Sensor {
+public class Sensing {
 	private Robot robot;
+	private ColorSensor sensor
 
 	public boolean isBlack() {
 
@@ -13,5 +14,6 @@ public class Sensor {
 
 	public void initRobot(Robot r) {
 		robot = r;
+		sensor = robot.getColorSensor(Sensor.port.S1)
 	}
 }
