@@ -16,22 +16,16 @@ public class Assignment3 {
 
 		ColorSensor.Color currentColor = sensor.getColor();
 
-		for (int i=0; i<1000; i++) {
+		do {
+			System.out.println("not black");
+			robot.sleep(1000);
 			currentColor = sensor.getColor();
-			if (button.isTouched()) 
-				break;
+			sensor.setMode(ColorSensor.Mode.COLOR);
+		} while (currentColor != ColorSensor.Color.BLACK);
 
-			if (currentColor != ColorSensor.Color.BLACK) {
-				System.out.println("not black");
-				robot.sleep(1000);
-			}
-
-			else {
-				System.out.println("black");
-				robot.sleep(1000);
-			}
+		System.out.println("found black");
 
 		robot.close();
-		}
+
 	}
 }
