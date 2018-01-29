@@ -1,7 +1,9 @@
 import ShefRobot.*;
+
 public class FollowLineTest {
-	private static final int MOVING_SPEED = 250;
+	private static final int MOVING_SPEED = 300;
 	private static final int TURNING_SPEED = 200;
+	private static final int SEARCHING_SPEED = 150;
 	private static final int TURNING_TIME = 1500;
 	private static final int GRID_SIZE = 16;
 	private static final int SEGMENT_SIZE = 4;
@@ -17,6 +19,9 @@ public class FollowLineTest {
 	private static boolean colorMatch = false;
 	private static boolean hasBall = false;
 
+	private static float leftRotation = 0;
+	private static float rightRotation = 0;
+
 	private static Robot myRobot = new Robot();
 	private static Motor leftMotor = myRobot.getLargeMotor(Motor.Port.B);
 	private static Motor rightMotor = myRobot.getLargeMotor(Motor.Port.C);
@@ -24,6 +29,9 @@ public class FollowLineTest {
 	private static ColorSensor myColor = myRobot.getColorSensor(Sensor.Port.S1);
 	private static Speaker mySpeaker = myRobot.getSpeaker();
 	private static UltrasonicSensor myDistance = myRobot.getUltrasonicSensor(Sensor.Port.S2);
+	private static GyroSensor myAngle = myRobot.getGyroSensor(Sensor.Port.S3);
+
+
 	//private static ColorSensor.Color[] colorGrid;
 
 
@@ -127,14 +135,73 @@ public class FollowLineTest {
 	}
 
 	public static void findBall() {
+		leftMotor.setSpeed(SEARCHING_SPEED);
+		rightMotor.setSpeed(SEARCHING_SPEED);
 		leftMotor.stop();
 		rightMotor.stop();
-		if (myDistance.getDistance() < 0.053) {
-			grabMotor.rotate(90);
+		leftMotor.resetTachoCount();
+		rightMotor.resetTachoCount();
+
+		while (!hasBall) {
+			leftMotor.forward();
+			rightMotor.forward();
+
+			System.out.println(myDistance.getDistance());
+			if (myDistance.getDistance() < 0.053) {
+				grabMotor.rotate(90);
+				hasBall = true;
+				System.out.println(myAngle.getAngle());
+			}
+
+			if (myColor.getColor() == ColorSensor.Color.WHITE || myColor.getColor() == ColorSensor.Color.BLACK) {
+				//leftMotor.backward();
+				//rightMotor.backward();
+				//myRobot.sleep(200);
+				//while (myColor.getColor() == ColorSensor.Color.BLUE) {
+				//	myRobot.sleep(20);
+				//}
+				leftMotor.rotate(360, true);
+				rightMotor.rotate(-360);
+				leftMotor.forward();
+				rightMotor.forward();
+				myRobot.sleep(100);
+			}
+
+			myRobot.sleep(100);
 		}
+
+		returnHome();
+	}
+
+	public static void returnHome() {
+
+		System.out.println(leftMotor.getTachoCount());
+		System.out.println(rightMotor.getTachoCount());
+
+		leftMotor.rotate(-leftMotor.getTachoCount(), true);
+		rightMotor.rotate(-rightMotor.getTachoCount());
+
+		//while(Math.abs(myAngle.getAngle()) > 185 || Math.abs(myAngle.getAngle()) < 175) {
+//		//	System.out.println(myAngle.getAngle());
+//		//	leftMotor.forward();
+//		//	rightMotor.backward();
+//		//}
+//
+//		//leftMotor.resetTachoCount();
+//
+//		//leftMotor.forward();
+//		//rightMotor.forward();
+//
+//		//while(leftMotor.getTachoCount() < 2000) {
+//		//	myRobot.sleep(100);
+//		//}
+//
+		//leftMotor.stop();
+		//rightMotor.stop();
 	}
 
 	public static void main(String[] args) {
+		myAngle.reset();
 		findGrid();
 		followLine();
 		//followCircle();
