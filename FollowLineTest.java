@@ -15,12 +15,15 @@ public class FollowLineTest {
 	private static int[] colorCount = {redCount, blueCount, greenCount,
 																					yellowCount, brownCount};
 	private static boolean colorMatch = false;
+	private static boolean hasBall = false;
 
 	private static Robot myRobot = new Robot();
 	private static Motor leftMotor = myRobot.getLargeMotor(Motor.Port.B);
 	private static Motor rightMotor = myRobot.getLargeMotor(Motor.Port.C);
+	private static Motor grabMotor = myRobot.getMediumMotor(Motor.Port.D);
 	private static ColorSensor myColor = myRobot.getColorSensor(Sensor.Port.S1);
 	private static Speaker mySpeaker = myRobot.getSpeaker();
+	private static UltrasonicSensor myDistance = myRobot.getUltrasonicSensor(Sensor.Port.S2);
 	//private static ColorSensor.Color[] colorGrid;
 
 
@@ -113,15 +116,22 @@ public class FollowLineTest {
 			System.out.println(myColor.getColor());
 			storeColor();
 			checkColor();
-			if (!colorMatch){
+			if (myColor.getColor() != ColorSensor.Color.BLUE){
 				followCircle();
 			}
 			else{
-				leftMotor.stop();
-				rightMotor.stop();
+				findBall();
 			}
 		}
 
+	}
+
+	public static void findBall() {
+		leftMotor.stop();
+		rightMotor.stop();
+		if (myDistance.getDistance() < 0.053) {
+			grabMotor.rotate(90);
+		}
 	}
 
 	public static void main(String[] args) {
