@@ -1,6 +1,21 @@
 import ShefRobot.*;
 
-public class FollowLineTest {
+import java.awt.BorderLayout;
+import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
+
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+
+public class FollowLineTest extends JFrame implements Runnable, KeyListener, WindowListener, ActionListener {
 	private static final int MOVING_SPEED = 300;
 	private static final int TURNING_SPEED = 200;
 	private static final int SEARCHING_SPEED = 150;
@@ -29,11 +44,92 @@ public class FollowLineTest {
 	private static ColorSensor myColor = myRobot.getColorSensor(Sensor.Port.S1);
 	private static Speaker mySpeaker = myRobot.getSpeaker();
 	private static UltrasonicSensor myDistance = myRobot.getUltrasonicSensor(Sensor.Port.S2);
-	private static GyroSensor myAngle = myRobot.getGyroSensor(Sensor.Port.S3);
+	//private static GyroSensor myAngle = myRobot.getGyroSensor(Sensor.Port.S3);
 
 
 	//private static ColorSensor.Color[] colorGrid;
 
+	//Defining the behaviour of the prgram
+	enum Command {STOP, LEFT, RIGHT, FORWARD, REVERSE, DANCE };
+	private static final int DELAY_MS = 50;
+	
+	// Make the window, text label and menu
+	private static final int FRAME_WIDTH = 400;
+	private static final int FRAME_HEIGHT = 200;
+	
+	private JLabel label = new JLabel("Stop",JLabel.CENTER);
+			
+	public FollowLineTest() {
+		JMenuBar menuBar = new JMenuBar();
+		JMenu menu = new JMenu("Quit");
+		JMenuItem menuItem = new JMenuItem("Really Quit?");
+		menuItem.addActionListener(this);
+		menu.add(menuItem);
+		menuBar.add(menu);
+		this.setJMenuBar(menuBar);
+		this.add(label, BorderLayout.CENTER);
+		label.setFont(new Font("SansSerif", Font.PLAIN, 48));
+		this.setBounds(0,0,FRAME_WIDTH,FRAME_HEIGHT);
+		this.setTitle("Sheffield Robot Football Controller");
+		this.addKeyListener(this);
+		this.addWindowListener(this);
+		this.setLocationRelativeTo(null);
+		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
+		this.setVisible(true);
+	}
+	
+	// Start the program	
+	private Command command = Command.STOP;	 
+
+	// Select the command corresponding to the key pressed	
+	public void keyPressed(KeyEvent e) {
+		switch ( e.getKeyCode()) {
+			case java.awt.event.KeyEvent.VK_UP:
+				command = Command.FORWARD;
+				break;
+			case java.awt.event.KeyEvent.VK_DOWN:
+				command = Command.REVERSE;
+				break;
+			case java.awt.event.KeyEvent.VK_LEFT:
+				command = Command.LEFT;
+				break;
+			case java.awt.event.KeyEvent.VK_RIGHT:
+				command = Command.RIGHT;
+				break;
+			case java.awt.event.KeyEvent.VK_SPACE:
+				command = Command.DANCE;
+				break;
+			default:
+				command = Command.STOP;
+				break;
+		}
+	}
+    //and released
+	public void keyReleased(KeyEvent e) {
+		command = Command.STOP;
+	}
+	//ignore everything else
+	public void keyTyped(KeyEvent e) {}	
+	public void windowActivated(WindowEvent e) {}
+	public void windowClosed(WindowEvent e) {}	
+	public void windowDeactivated(WindowEvent e) {}
+	public void windowDeiconified(WindowEvent e) {}
+	public void windowIconified(WindowEvent e) {}
+	public void windowOpened(WindowEvent e) {}
+	
+	// handle the quit menu item	
+	public void actionPerformed(ActionEvent e) {
+		if (e.getActionCommand().equals("Really Quit?")) {
+			System.out.println("Closing Bluetooth");
+			myRobot.close();
+			System.exit(0);
+		}
+	}
+	//and the window closing
+	public void windowClosing(WindowEvent e) {
+		System.out.println("Closing Bluetooth");
+		myRobot.close();
+	}
 
 	public static void storeColor() {
 		//currentColor = ColorSensor.getColor();
@@ -106,6 +202,7 @@ public class FollowLineTest {
 
 
 	public static void followLine() {
+		
 		leftMotor.setSpeed(MOVING_SPEED);
 		rightMotor.setSpeed(MOVING_SPEED);
 		while (!colorMatch){
@@ -135,6 +232,7 @@ public class FollowLineTest {
 	}
 
 	public static void findBall() {
+
 		leftMotor.setSpeed(SEARCHING_SPEED);
 		rightMotor.setSpeed(SEARCHING_SPEED);
 		leftMotor.stop();
@@ -150,7 +248,7 @@ public class FollowLineTest {
 			if (myDistance.getDistance() < 0.053) {
 				grabMotor.rotate(90);
 				hasBall = true;
-				System.out.println(myAngle.getAngle());
+
 			}
 
 			if (myColor.getColor() == ColorSensor.Color.WHITE || myColor.getColor() == ColorSensor.Color.BLACK) {
@@ -169,43 +267,69 @@ public class FollowLineTest {
 
 			myRobot.sleep(100);
 		}
-
-		returnHome();
 	}
 
-	public static void returnHome() {
+	public void run() {
+		
+		while (true) {
+			switch (command) {
+				case STOP:
+					label.setText("Stop");
+					leftMotor.stop();
+					rightMotor.stop();
+					
+					// put your code for stopping here
+					
+					break;					
+				case FORWARD:
+					label.setText("Forward");
+					leftMotor.forward();
+					rightMotor.forward();
+					
+					// put your code for going forwards here
+					
+					break;					
+				case REVERSE:
+					label.setText("Reverse");
+					leftMotor.backward();
+					rightMotor.backward();
+					
+					// put your code for going backwards here
+					
+					break;					
+				case LEFT:
+					label.setText("Left");
+					leftMotor.backward();
+					rightMotor.forward();
+					
+  					// put your code for turning left here
 
-		System.out.println(leftMotor.getTachoCount());
-		System.out.println(rightMotor.getTachoCount());
+					break;
+				case RIGHT:
+					label.setText("Right");
+					leftMotor.forward();
+					rightMotor.backward();
+					
+    				// put your code for turning right here
 
-		leftMotor.rotate(-leftMotor.getTachoCount(), true);
-		rightMotor.rotate(-rightMotor.getTachoCount());
+					break;
+				case DANCE:
+					label.setText("Dance");
+					
+    				// put your code for kicking here
 
-		//while(Math.abs(myAngle.getAngle()) > 185 || Math.abs(myAngle.getAngle()) < 175) {
-//		//	System.out.println(myAngle.getAngle());
-//		//	leftMotor.forward();
-//		//	rightMotor.backward();
-//		//}
-//
-//		//leftMotor.resetTachoCount();
-//
-//		//leftMotor.forward();
-//		//rightMotor.forward();
-//
-//		//while(leftMotor.getTachoCount() < 2000) {
-//		//	myRobot.sleep(100);
-//		//}
-//
-		//leftMotor.stop();
-		//rightMotor.stop();
+ 					break;
+			}
+			try {
+				Thread.sleep(DELAY_MS);
+			} catch (InterruptedException e) {};
+		}
 	}
 
 	public static void main(String[] args) {
-		myAngle.reset();
+		Thread t = new Thread(new FollowLineTest());
 		findGrid();
 		followLine();
-		//followCircle();
-		myRobot.close();
-
-	}
+		t.start();
+ 	}
 }

@@ -28,7 +28,7 @@ import javax.swing.JMenuItem;
 public class EV3football extends JFrame implements Runnable, KeyListener, WindowListener, ActionListener {
 	
 	//Defining the behaviour of the prgram
-	enum Command {STOP, LEFT, RIGHT, FORWARD, REVERSE, KICK };
+	enum Command {STOP, LEFT, RIGHT, FORWARD, REVERSE, DANCE };
 	private static final int DELAY_MS = 50;
 	
 	// Make the window, text label and menu
@@ -80,7 +80,7 @@ public class EV3football extends JFrame implements Runnable, KeyListener, Window
 				command = Command.RIGHT;
 				break;
 			case java.awt.event.KeyEvent.VK_SPACE:
-				command = Command.KICK;
+				command = Command.DANCE;
 				break;
 			default:
 				command = Command.STOP;
@@ -129,36 +129,46 @@ public class EV3football extends JFrame implements Runnable, KeyListener, Window
 			switch (command) {
 				case STOP:
 					label.setText("Stop");
+					leftMotor.stop();
+					rightMotor.stop();
 					
 					// put your code for stopping here
 					
 					break;					
 				case FORWARD:
 					label.setText("Forward");
+					leftMotor.forward();
+					rightMotor.forward();
 					
 					// put your code for going forwards here
 					
 					break;					
 				case REVERSE:
 					label.setText("Reverse");
+					leftMotor.backward();
+					rightMotor.backward();
 					
 					// put your code for going backwards here
 					
 					break;					
 				case LEFT:
 					label.setText("Left");
+					leftMotor.backward();
+					rightMotor.forward();
 					
   					// put your code for turning left here
 
 					break;
 				case RIGHT:
 					label.setText("Right");
+					leftMotor.forward();
+					rightMotor.backward();
 					
     				// put your code for turning right here
 
 					break;
-				case KICK:
-					label.setText("Kick");
+				case DANCE:
+					label.setText("Dance");
 					
     				// put your code for kicking here
 
